@@ -84,7 +84,11 @@ def final_presentation(item, intent):
     prompt = PromptTemplate.from_template("""
     推荐内容：{item}
     用户意图：{intent}
-    请写一句吸引人的中文推荐语，解释为什么这个内容符合用户的兴趣。
+    任务：请写一句吸引人的中文推荐语，解释为什么这个内容符合用户的兴趣。
+    要求：
+    1. 必须完全使用中文。
+    2. 不要包含任何英文解释或说明。
+    3. 语气要亲切、专业。
     推荐语：""")
     return llm.invoke(prompt.format(item=item, intent=intent)).strip()
 

@@ -60,7 +60,7 @@ llm = Ollama(model="gemma2:2b")
 
 # Step 1: 意图识别
 def get_intent(query):
-    prompt = PromptTemplate.from_template("分析用户问题，输出唯一意图（code_debug, architecture, tech_concept, unknown）。问题：{query}\n意图：")
+    prompt = PromptTemplate.from_template("分析用户问题，输出唯一意图（code_debug, architecture, tech_concept, unknown）。请直接输出意图名称，不要有任何解释。问题：{query}\n意图：")
     return llm.invoke(prompt.format(query=query)).strip()
 
 # Step 2: 关键词提取 (用于增强检索)
@@ -74,8 +74,11 @@ def get_keywords(query):
 def verify_answer(query, context, answer):
     prompt = PromptTemplate.from_template("""
     你是一个严谨的质检员。请判断给出的回答是否完全基于参考信息。
-    如果回答中包含参考信息里没有的内容，请输出 'FAIL' 并说明原因。
-    如果回答正确，请输出 'PASS'。
+
+    要求：
+    1. 如果回答中包含参考信息里没有的内容，请输出 '不通过' 并用中文说明原因。
+    2. 如果回答正确，请输出 '通过'。
+    3. 必须完全使用中文输出，不要包含任何英文。
 
     参考信息：{context}
     用户问题：{query}
@@ -84,7 +87,7 @@ def verify_answer(query, context, answer):
     判断结果：""")
     verification = llm.invoke(prompt.format(query=query, context=context, answer=answer)).strip()
     print(f"✅ 质检结果：{verification}")
-    return "PASS" in verification.upper()
+    return "通过" in verification
 
 # ----------------------
 # 5. AI Search：Agentic Workflow (工作流模式)
